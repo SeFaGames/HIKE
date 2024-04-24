@@ -462,7 +462,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSensitiviy: 2
-  lockedCursor: 0
+  lockedCursor: 1
   speed: 2500
 --- !u!1 &409034781 stripped
 GameObject:

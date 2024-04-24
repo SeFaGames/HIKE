@@ -25,7 +25,7 @@ public class WandernadelManager : MonoBehaviour
             var stempelstelle = Instantiate(wandernadelObject, this.transform);
             stempelstelle.name = i + " - " + data.name;
             stempelstelle.SetActive(true);
-            stempelstelle.transform.position = new Vector3(data.x-index.x.min, (((data.y-index.y.min)/index.y.diff)*index.y.max)*terrainManager.heightScaleFactor, data.z-index.z.min);
+            stempelstelle.transform.position = new Vector3(data.x-index.x.min, (data.y-index.y.min)*terrainManager.heightScaleFactor, data.z-index.z.min);
             wandernadeln[i] = stempelstelle.transform;
         }
     }

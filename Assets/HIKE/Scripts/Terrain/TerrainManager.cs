@@ -61,6 +61,32 @@ public class TerrainManager : MonoBehaviour
                 terrains[z, x] = terrain;
             }
         }
+
+        for(int x = 0; x < terrainAmountX; x++)
+        {
+            for (int z = 0; z < terrainAmountZ; z++)
+            {
+                Terrain terrain = terrains[x, z];
+                Terrain north = null;
+                Terrain south = null;
+                Terrain east = null;
+                Terrain west = null;
+                
+                if(x > 0)
+                    north = terrains[x - 1, z];
+
+                if(x < terrainAmountX-1)
+                    south = terrains[x + 1, z];
+
+                if (z > 0)
+                    west = terrains[x, z - 1];
+
+                if(z < terrainAmountZ-1)
+                    east = terrains[x, z + 1];
+
+                terrain.SetNeighbors(west, north, east, south);
+            }
+        }
     }
 
     private int CalcTerrainAmount(float diff)
