@@ -8,7 +8,7 @@ public class WandernadelManager : MonoBehaviour
 {
     public TextAsset stampDataFile;
     public GameObject stampPrefab;
-    //public TerrainManager terrainManager;
+    public TerrainManager terrainManager;
     public CoordinateService coordinateService;
     public float scaleFactor = 1.0f;
     //public float downscaleFactor = 0.01f;
@@ -35,7 +35,14 @@ public class WandernadelManager : MonoBehaviour
             stempelstelle.name = i + " - " + data.name;
             stempelstelle.SetActive(true);
 
-            stempelstelle.transform.position = coordinateService.convertETRSToUnity(new Vector3(data.x, data.y, data.z));
+            Vector3 coordinates = coordinateService.convertETRSToUnity(new Vector3(data.x, data.y, data.z));
+            float height = terrainManager.calculateHeightAt(Mathf.RoundToInt(coordinates.x), Mathf.RoundToInt(coordinates.z));
+            coordinates.y = height;
+
+            if(height <= 0)
+                stempelstelle.SetActive(false);
+
+            stempelstelle.transform.position = coordinates;
             stempelstelle.transform.localScale = (stempelstelle.transform.localScale * scaleFactor) * coordinateService.scaleFactor;
 
             //Apply a random rotation around y axis

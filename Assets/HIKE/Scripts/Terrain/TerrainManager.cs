@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -105,7 +106,11 @@ public class TerrainManager : MonoBehaviour
 
                 Terrain terrain = obj.GetComponent<Terrain>();
                 terrain.transform.position = new Vector3(x * terrainDimensions.x, 0, z * terrainDimensions.z);
-                terrain.materialTemplate = GetMaterial(x, z);
+                Material material = GetMaterial(x, z);
+                terrain.materialTemplate = material;
+
+                if(material == null)
+                    obj.SetActive(false);
 
                 terrains[z, x] = terrain;
             }
@@ -230,6 +235,19 @@ public class TerrainManager : MonoBehaviour
         return tileHeightmap;
     }
 
+    public float calculateHeightAt(float x, float z)
+    {
+        int segX = Mathf.FloorToInt(x / (((this.resolution - 1) * this.index.gitterweite) * coordinateService.scaleFactor));
+        int segZ = Mathf.FloorToInt(z / (((this.resolution - 1) * this.index.gitterweite) * coordinateService.scaleFactor));
+        String name = "harz_seg_" + segX + "_" + segZ;
+        Terrain terrain = this.GetComponentsInChildren<Terrain>().ToList().Find(elem => elem.name == name);
+
+        if(terrain == null) return 0;
+
+        float height = terrain.SampleHeight(new Vector3(x, 0, z));
+        return height;
+    }
+
     /// <summary>
     /// Returns the Material for a specified terrain index
     /// </summary>
@@ -242,7 +260,7 @@ public class TerrainManager : MonoBehaviour
         Material loadedMaterial = Resources.Load<Material>(path);
 
         if (loadedMaterial == null)
-            Debug.Log($"Material with Path '{path}' not found");
+            Debug.Log($"Material with Path '{path}' not found. Disabling Terrain");
 
         return loadedMaterial;
     }
