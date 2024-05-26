@@ -1,0 +1,4 @@
+repository "HIKE@HsHarz@cloud"
+  path "/"
+    br "/main"
+    co "/main"
