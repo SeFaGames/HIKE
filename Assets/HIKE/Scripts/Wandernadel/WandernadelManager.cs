@@ -2,13 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class WandernadelManager : MonoBehaviour
 {
     public TextAsset stampDataFile;
     public GameObject stampPrefab;
-    public TerrainManager terrainManager;
+    //public TerrainManager terrainManager;
+    public CoordinateService coordinateService;
     public float scaleFactor = 1.0f;
+    //public float downscaleFactor = 0.01f;
+    //public float heightScaleFactor = 1.0f;
 
     [InspectorButton("Regenerate")]
     public bool regenerate;
@@ -22,7 +26,7 @@ public class WandernadelManager : MonoBehaviour
         StampData[] stempelstellen = JsonUtility.FromJson<StampDataArray>(stampDataFile.text).stempelstellen;
         wandernadeln = new Transform[stempelstellen.Length];
 
-        TerrainIndex index = terrainManager.Index;
+        //TerrainIndex index = terrainManager.Index;
 
         for (int i = 0; i < stempelstellen.Length; i++)
         {
@@ -30,13 +34,9 @@ public class WandernadelManager : MonoBehaviour
             var stempelstelle = Instantiate(stampPrefab, this.transform);
             stempelstelle.name = i + " - " + data.name;
             stempelstelle.SetActive(true);
-            float xPos = (data.x - index.x.min) / terrainManager.downscaleFactor;
-            float yPos = ((data.y - index.y.min) * terrainManager.heightScaleFactor) / terrainManager.downscaleFactor;
-            float zPos = (data.z - index.z.min) / terrainManager.downscaleFactor;
 
-            stempelstelle.transform.position = new Vector3(xPos, yPos, zPos);
-
-            stempelstelle.transform.localScale = stempelstelle.transform.localScale * scaleFactor;
+            stempelstelle.transform.position = coordinateService.convertETRSToUnity(new Vector3(data.x, data.y, data.z));
+            stempelstelle.transform.localScale = (stempelstelle.transform.localScale * scaleFactor) * coordinateService.scaleFactor;
 
             //Apply a random rotation around y axis
             Quaternion randomRotationRaw = Random.rotation;
