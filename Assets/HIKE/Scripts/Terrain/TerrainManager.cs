@@ -17,14 +17,12 @@ public class TerrainManager : MonoBehaviour
      */
 
     private TerrainIndex index;
-    public TextAsset dataFile;
-    public TextAsset indexFile;
-    public CoordinateService coordinateService;
-    public int resolution = 513;
-    public String materialAssetPath = "Textures/Terrain/Materials";
 
     [InspectorButton("Regenerate")]
     public bool regenerate;
+
+    [InspectorButton("Clear")]
+    public bool clear;
 
     void Start()
     {
@@ -36,45 +34,26 @@ public class TerrainManager : MonoBehaviour
     /// </summary>
     private void Regenerate()
     {
-        RemoveOldObjects();
-        this.index = InitializeAndCheck();
+        Clear();
+        var settings = HikeSettings.GetOrCreateSettings();
+        CoordinateService coordinateService = CoordinateService.GetInstance();
+        this.index = JsonUtility.FromJson<TerrainIndex>(settings.dgmIndexFile.text);
 
-        float[,] completeHeightmap = ImportHeightmapFromDataFile(this.dataFile, this.index.heightmap.x, this.index.heightmap.z);
-        float terrainSize = ((this.resolution - 1) * this.index.gitterweite) * coordinateService.scaleFactor;
+        float[,] completeHeightmap = ImportHeightmapFromDataFile(settings.dgmDataFile, this.index.heightmap.x, this.index.heightmap.z);
+        float terrainSize = ((settings.mapHeightmapResolution - 1) * this.index.gitterweite) * settings.mapScaleFactor;
+        Debug.Log(this.index.y.max);
         float terrainHeight = coordinateService.convertHeightETRSToUnity(this.index.y.max);// (this.index.y.diff * this.heightScaleFactor) / this.downscaleFactor;
 
         Vector3 terrainDimensions = new Vector3(terrainSize, terrainHeight, terrainSize);
-        int xSegmentAmount = CalcSegmentsNeededForLength(this.index.x.diff, this.index.gitterweite, this.resolution);
-        int zSegmentAmount = CalcSegmentsNeededForLength(this.index.z.diff, this.index.gitterweite, this.resolution);
+        int xSegmentAmount = CalcSegmentsNeededForLength(this.index.x.diff, this.index.gitterweite, settings.mapHeightmapResolution);
+        int zSegmentAmount = CalcSegmentsNeededForLength(this.index.z.diff, this.index.gitterweite, settings.mapHeightmapResolution);
 
         Terrain[,] terrains = new Terrain[zSegmentAmount, xSegmentAmount];
         Debug.Log($"TerrainSize: {xSegmentAmount}*{zSegmentAmount}");
 
-        CreateTerrainGameObjects(terrains, completeHeightmap, terrainDimensions, xSegmentAmount, zSegmentAmount);
+        CreateTerrainGameObjects(terrains, completeHeightmap, terrainDimensions, xSegmentAmount, zSegmentAmount, settings);
         SetNeighboringTerrain(terrains, xSegmentAmount, zSegmentAmount);
-    }
-
-    /// <summary>
-    /// Initializes the TerrainManager and checks if all necessary resources are assigned and available.
-    /// 
-    /// --> Converts IndexFile to Index and returns the index
-    /// </summary>
-    /// <exception cref="Exception">If any of indexFile, dataFile or converted index is null</exception>
-    private TerrainIndex InitializeAndCheck()
-    {
-        if (this.indexFile == null)
-            throw new Exception("IndexFile must not be null");
-
-        if (this.dataFile == null)
-            throw new Exception("DataFile must not be null");
-
-        //Import DGM Index Object from JSON
-        var index = JsonUtility.FromJson<TerrainIndex>(indexFile.text);
-
-        if (index == null)
-            throw new Exception("Index must not be null");
-
-        return index;
+        
     }
 
     /// <summary>
@@ -87,16 +66,19 @@ public class TerrainManager : MonoBehaviour
     /// <param name="terrainDimensions">length, width and maxHeight of the terrains</param>
     /// <param name="xSegmentAmount">Amount of Segments on the X Axis</param>
     /// <param name="zSegmentAmount">Amount of Segments on the Z Axis</param>
-    private void CreateTerrainGameObjects(Terrain[,] terrains, float[,] completeHeightmap, Vector3 terrainDimensions, int xSegmentAmount, int zSegmentAmount)
+    private void CreateTerrainGameObjects(Terrain[,] terrains, float[,] completeHeightmap, Vector3 terrainDimensions, int xSegmentAmount, int zSegmentAmount, HikeSettings settings)
     {
+        int resolution = settings.mapHeightmapResolution;
+        string materialAssetPath = settings.dopMaterialPath;
+
         for (int z = 0; z < zSegmentAmount; z++)
         {
             for (int x = 0; x < xSegmentAmount; x++)
             {
-                var tileHeightmap = ExtractTileHeightmap(completeHeightmap, x * (this.resolution - 1), z * (this.resolution - 1), this.resolution);
+                var tileHeightmap = ExtractTileHeightmap(completeHeightmap, x * (resolution - 1), z * (resolution - 1), resolution);
 
                 TerrainData data = new TerrainData();
-                data.heightmapResolution = this.resolution;
+                data.heightmapResolution = resolution;
                 data.size = terrainDimensions;
                 data.SetHeights(0, 0, tileHeightmap);
 
@@ -106,7 +88,7 @@ public class TerrainManager : MonoBehaviour
 
                 Terrain terrain = obj.GetComponent<Terrain>();
                 terrain.transform.position = new Vector3(x * terrainDimensions.x, 0, z * terrainDimensions.z);
-                Material material = GetMaterial(x, z);
+                Material material = GetMaterial(x, z, materialAssetPath);
                 terrain.materialTemplate = material;
 
                 if(material == null)
@@ -235,10 +217,12 @@ public class TerrainManager : MonoBehaviour
         return tileHeightmap;
     }
 
-    public float calculateHeightAt(float x, float z)
+    public float calculateHeightAt(float x, float z, int resolution)
     {
-        int segX = Mathf.FloorToInt(x / (((this.resolution - 1) * this.index.gitterweite) * coordinateService.scaleFactor));
-        int segZ = Mathf.FloorToInt(z / (((this.resolution - 1) * this.index.gitterweite) * coordinateService.scaleFactor));
+        HikeSettings settings = HikeSettings.GetOrCreateSettings();
+
+        int segX = Mathf.FloorToInt(x / (((resolution - 1) * this.index.gitterweite) * settings.mapScaleFactor));
+        int segZ = Mathf.FloorToInt(z / (((resolution - 1) * this.index.gitterweite) * settings.mapScaleFactor));
         String name = "harz_seg_" + segX + "_" + segZ;
         Terrain terrain = this.GetComponentsInChildren<Terrain>().ToList().Find(elem => elem.name == name);
 
@@ -254,7 +238,7 @@ public class TerrainManager : MonoBehaviour
     /// <param name="terrainIndexX">X Terrain Index</param>
     /// <param name="terrainIndexZ">Z Terrain Index</param>
     /// <returns>Material for the terrain at index x, z; possibly null (if no material for this index exists)</returns>
-    public Material GetMaterial(int terrainIndexX, int terrainIndexZ)
+    public Material GetMaterial(int terrainIndexX, int terrainIndexZ, string materialAssetPath)
     {
         String path = materialAssetPath + "/tile_" + terrainIndexX + "_" + terrainIndexZ;
         Material loadedMaterial = Resources.Load<Material>(path);
@@ -268,7 +252,7 @@ public class TerrainManager : MonoBehaviour
     /// <summary>
     /// Removes all child components (old terrain segments)
     /// </summary>
-    private void RemoveOldObjects()
+    private void Clear()
     {
         for (int i = this.transform.childCount - 1; i >= 0; i--)
         {

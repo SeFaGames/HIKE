@@ -9,19 +9,24 @@ public class WandernadelManager : MonoBehaviour
     public TextAsset stampDataFile;
     public GameObject stampPrefab;
     public TerrainManager terrainManager;
-    public CoordinateService coordinateService;
-    public float scaleFactor = 1.0f;
-    //public float downscaleFactor = 0.01f;
-    //public float heightScaleFactor = 1.0f;
 
     [InspectorButton("Regenerate")]
     public bool regenerate;
+
+    [InspectorButton("Clear")]
+    public bool clear;
 
     private Transform[] wandernadeln;
 
     public void Regenerate()
     {
-        RemoveOldObjects();
+        Clear();
+
+        CoordinateService coordinateService = CoordinateService.GetInstance();
+        var settings = HikeSettings.GetOrCreateSettings();
+
+        float scaleFactor = settings.stampScaleFactor;
+        float mapScaleFactor = settings.mapScaleFactor;
 
         StampData[] stempelstellen = JsonUtility.FromJson<StampDataArray>(stampDataFile.text).stempelstellen;
         wandernadeln = new Transform[stempelstellen.Length];
@@ -36,14 +41,14 @@ public class WandernadelManager : MonoBehaviour
             stempelstelle.SetActive(true);
 
             Vector3 coordinates = coordinateService.convertETRSToUnity(new Vector3(data.x, data.y, data.z));
-            float height = terrainManager.calculateHeightAt(Mathf.RoundToInt(coordinates.x), Mathf.RoundToInt(coordinates.z));
+            float height = terrainManager.calculateHeightAt(Mathf.RoundToInt(coordinates.x), Mathf.RoundToInt(coordinates.z), settings.mapHeightmapResolution);
             coordinates.y = height;
 
             if(height <= 0)
                 stempelstelle.SetActive(false);
 
             stempelstelle.transform.position = coordinates;
-            stempelstelle.transform.localScale = (stempelstelle.transform.localScale * scaleFactor) * coordinateService.scaleFactor;
+            stempelstelle.transform.localScale = (stempelstelle.transform.localScale * scaleFactor) * mapScaleFactor;
 
             //Apply a random rotation around y axis
             Quaternion randomRotationRaw = Random.rotation;
@@ -53,7 +58,7 @@ public class WandernadelManager : MonoBehaviour
         }
     }
 
-    private void RemoveOldObjects()
+    private void Clear()
     {
         for (int i = this.transform.childCount - 1; i >= 0; i--)
         {

@@ -4,18 +4,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 
-public class CoordinateService : MonoBehaviour
-{
-    public float scaleFactor = 1.0f;
-    public float heightScaleFactor = 1.0f;
-    public TextAsset indexFile;
+public class CoordinateService
+{    
     private TerrainIndex index;
+    private float scaleFactor;
+    private float heightScaleFactor;
 
-    void Start()
+    public CoordinateService()
     {
+        HikeSettings settings = HikeSettings.GetOrCreateSettings();
+        TextAsset indexFile = settings.dgmIndexFile;
+
         this.index = JsonUtility.FromJson<TerrainIndex>(indexFile.text);
-        if (index == null)
-            throw new Exception("Could not load Index");
+        this.scaleFactor = settings.mapScaleFactor;
+        this.heightScaleFactor = settings.mapHeightScaleFactor;
+    }
+
+    public static CoordinateService GetInstance()
+    {
+        return new CoordinateService();
     }
 
     public Vector3 convertETRSToUnity(Vector3 etrsCoordinate)
@@ -73,6 +80,10 @@ public class CoordinateService : MonoBehaviour
 
     public float convertHeightETRSToUnity(float height)
     {
+        Debug.Log(height);
+        Debug.Log(this.index.y.min);
+        Debug.Log(this.heightScaleFactor);
+        Debug.Log(this.scaleFactor);
         return ((height - this.index.y.min) * this.heightScaleFactor) * this.scaleFactor;
     }
 
