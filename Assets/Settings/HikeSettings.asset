@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: HikeSettings
   m_EditorClassIdentifier: 
   dgmIndexFile: {fileID: 4900000, guid: 1850ebf8db721af4992236826e97f1c8, type: 3}
-  dgmDataFile: {fileID: 4900000, guid: d5aabb3e88e6a904cbd4b5311f621a42, type: 3}
-  mapScaleFactor: 0.01
-  mapHeightScaleFactor: 1.5
+  dgmDataFile: {fileID: 4900000, guid: 8c4be5b20607525418005beb5f6fee71, type: 3}
+  mapScaleFactor: 0.000033
+  mapHeightScaleFactor: 2.5
   mapHeightmapResolution: 513
   dopMaterialPath: Textures/Terrain/Materials
   stampScaleFactor: 6.5
+  stampDataFile: {fileID: 4900000, guid: 930e2f3e80d19114e8a6bb1a53d22505, type: 3}
+  stampPrefab: {fileID: 919132149155446097, guid: 5cad80a4c4f30114ebb632bd389ae3cb,
+    type: 3}

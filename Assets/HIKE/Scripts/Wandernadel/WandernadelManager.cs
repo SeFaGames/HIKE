@@ -6,8 +6,6 @@ using UnityEngine.Animations;
 
 public class WandernadelManager : MonoBehaviour
 {
-    public TextAsset stampDataFile;
-    public GameObject stampPrefab;
     public TerrainManager terrainManager;
 
     [InspectorButton("Regenerate")]
@@ -16,17 +14,29 @@ public class WandernadelManager : MonoBehaviour
     [InspectorButton("Clear")]
     public bool clear;
 
+    public bool regenerateOnGameStart = false;
+
     private Transform[] wandernadeln;
+
+    void Start()
+    {
+        if(regenerateOnGameStart)   
+            Regenerate();
+    }
 
     public void Regenerate()
     {
         Clear();
 
         CoordinateService coordinateService = CoordinateService.GetInstance();
-        var settings = HikeSettings.GetOrCreateSettings();
+        HikeSettings settings = HikeSettings.GetOrCreateSettings();
+        TerrainIndex index = settings.GetTerrainIndex();
 
         float scaleFactor = settings.stampScaleFactor;
         float mapScaleFactor = settings.mapScaleFactor;
+        TextAsset stampDataFile = settings.stampDataFile;
+        GameObject stampPrefab = settings.stampPrefab;
+
 
         StampData[] stempelstellen = JsonUtility.FromJson<StampDataArray>(stampDataFile.text).stempelstellen;
         wandernadeln = new Transform[stempelstellen.Length];
@@ -41,13 +51,13 @@ public class WandernadelManager : MonoBehaviour
             stempelstelle.SetActive(true);
 
             Vector3 coordinates = coordinateService.convertETRSToUnity(new Vector3(data.x, data.y, data.z));
-            float height = terrainManager.calculateHeightAt(Mathf.RoundToInt(coordinates.x), Mathf.RoundToInt(coordinates.z), settings.mapHeightmapResolution);
+            float height = terrainManager.calculateHeightAt(Mathf.RoundToInt(coordinates.x), Mathf.RoundToInt(coordinates.z), settings.mapHeightmapResolution, index);
             coordinates.y = height;
 
             if(height <= 0)
                 stempelstelle.SetActive(false);
 
-            stempelstelle.transform.position = coordinates;
+            stempelstelle.transform.localPosition = coordinates;
             stempelstelle.transform.localScale = (stempelstelle.transform.localScale * scaleFactor) * mapScaleFactor;
 
             //Apply a random rotation around y axis

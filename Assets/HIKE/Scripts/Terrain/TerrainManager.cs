@@ -24,9 +24,12 @@ public class TerrainManager : MonoBehaviour
     [InspectorButton("Clear")]
     public bool clear;
 
+    public bool regenerateOnGameStart = false;
+
     void Start()
     {
-        Regenerate();
+        if(regenerateOnGameStart)
+            Regenerate();
     }
 
     /// <summary>
@@ -35,9 +38,9 @@ public class TerrainManager : MonoBehaviour
     private void Regenerate()
     {
         Clear();
-        var settings = HikeSettings.GetOrCreateSettings();
+        HikeSettings settings = HikeSettings.GetOrCreateSettings();
         CoordinateService coordinateService = CoordinateService.GetInstance();
-        this.index = JsonUtility.FromJson<TerrainIndex>(settings.dgmIndexFile.text);
+        this.index = settings.GetTerrainIndex();
 
         float[,] completeHeightmap = ImportHeightmapFromDataFile(settings.dgmDataFile, this.index.heightmap.x, this.index.heightmap.z);
         float terrainSize = ((settings.mapHeightmapResolution - 1) * this.index.gitterweite) * settings.mapScaleFactor;
@@ -87,7 +90,7 @@ public class TerrainManager : MonoBehaviour
                 obj.transform.parent = transform;   //Set this TerrainManager as parent
 
                 Terrain terrain = obj.GetComponent<Terrain>();
-                terrain.transform.position = new Vector3(x * terrainDimensions.x, 0, z * terrainDimensions.z);
+                terrain.transform.localPosition = new Vector3(x * terrainDimensions.x, 0, z * terrainDimensions.z);
                 Material material = GetMaterial(x, z, materialAssetPath);
                 terrain.materialTemplate = material;
 
@@ -217,12 +220,12 @@ public class TerrainManager : MonoBehaviour
         return tileHeightmap;
     }
 
-    public float calculateHeightAt(float x, float z, int resolution)
+    public float calculateHeightAt(float x, float z, int resolution, TerrainIndex index)
     {
         HikeSettings settings = HikeSettings.GetOrCreateSettings();
 
-        int segX = Mathf.FloorToInt(x / (((resolution - 1) * this.index.gitterweite) * settings.mapScaleFactor));
-        int segZ = Mathf.FloorToInt(z / (((resolution - 1) * this.index.gitterweite) * settings.mapScaleFactor));
+        int segX = Mathf.FloorToInt(x / (((resolution - 1) * index.gitterweite) * settings.mapScaleFactor));
+        int segZ = Mathf.FloorToInt(z / (((resolution - 1) * index.gitterweite) * settings.mapScaleFactor));
         String name = "harz_seg_" + segX + "_" + segZ;
         Terrain terrain = this.GetComponentsInChildren<Terrain>().ToList().Find(elem => elem.name == name);
 

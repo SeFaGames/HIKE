@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -33,6 +34,10 @@ public class HikeSettings : ScriptableObject
     //Stempelstellen
     [SerializeField]
     public float stampScaleFactor;
+    [SerializeField]
+    public TextAsset stampDataFile;
+    [SerializeField]
+    public GameObject stampPrefab;
 
     internal static HikeSettings GetOrCreateSettings()
     {
@@ -54,6 +59,8 @@ public class HikeSettings : ScriptableObject
             settings.dopMaterialPath = "Textures/Terrain/Materials";
 
             settings.stampScaleFactor = 1.0f;
+            settings.stampDataFile = null;
+            settings.stampPrefab = null;
             AssetDatabase.CreateAsset(settings, settingsPath);
             AssetDatabase.SaveAssets();
         }
@@ -63,6 +70,11 @@ public class HikeSettings : ScriptableObject
     internal static SerializedObject GetSerializedSettings()
     {
         return new SerializedObject(GetOrCreateSettings());
+    }
+
+    internal TerrainIndex GetTerrainIndex()
+    {
+        return JsonUtility.FromJson<TerrainIndex>(this.dgmIndexFile.text); 
     }
 }
 
@@ -76,7 +88,11 @@ class Styles
     public static GUIContent map_heightScaleFactor = new GUIContent("Überhöhungsfaktor");
     public static GUIContent map_heightmapResolution = new GUIContent("Auflösung der Heightmap");
 
-    public static GUIContent stamp_scaleFactor = new GUIContent("Skalierungsfaktor (Stempelstelle)");
+    public static GUIContent dop_MaterialPath = new GUIContent("Orthofoto-Texturen - Pfad zum Materialordner");
+
+    public static GUIContent stamp_scaleFactor = new GUIContent("Stempelstelle - Skalierungsfaktor");
+    public static GUIContent stamp_dataFile = new GUIContent("Stempelstelle - Quelldaten-Datei");
+    public static GUIContent stamp_prefab = new GUIContent("Stempelstelle - Prefab");
 }
 
 class HikeSettingsProvider : SettingsProvider
@@ -112,9 +128,15 @@ class HikeSettingsProvider : SettingsProvider
         EditorGUILayout.PropertyField(settings.FindProperty("mapHeightScaleFactor"), Styles.map_heightScaleFactor);
         EditorGUILayout.PropertyField(settings.FindProperty("mapHeightmapResolution"), Styles.map_heightmapResolution);
 
+        //DOP
+        EditorGUILayout.LabelField("Orthofotos / Terraintexturen:");
+        EditorGUILayout.PropertyField(settings.FindProperty("dopMaterialPath"), Styles.dop_MaterialPath);
+
         //Stempelstellen
         EditorGUILayout.LabelField("Stempelstellen:");
         EditorGUILayout.PropertyField(settings.FindProperty("stampScaleFactor"), Styles.stamp_scaleFactor);
+        EditorGUILayout.PropertyField(settings.FindProperty("stampDataFile"), Styles.stamp_dataFile);
+        EditorGUILayout.PropertyField(settings.FindProperty("stampPrefab"), Styles.stamp_prefab);
 
         settings.ApplyModifiedPropertiesWithoutUndo();
     }

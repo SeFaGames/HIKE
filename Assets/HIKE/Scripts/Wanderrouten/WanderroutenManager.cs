@@ -18,6 +18,8 @@ public class WanderroutenManager : MonoBehaviour
     [InspectorButton("Clear")]
     public bool clear;
 
+    public bool regenerateOnGameStart = false;
+
     public void Regenerate()
     {
         Debug.Log("Regenerating Routes");
@@ -69,7 +71,8 @@ public class WanderroutenManager : MonoBehaviour
 
     void Start()
     {
-        Regenerate();
+        if (regenerateOnGameStart)
+            Regenerate();
     }
 
     private void Clear()
