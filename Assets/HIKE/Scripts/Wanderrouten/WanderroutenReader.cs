@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
@@ -114,7 +115,15 @@ public class RatingDetails
 public class GeoJson
 {
     public string type;
-    public List<float[]> coordinates;
+    public Coord[] coordinates;
+}
+
+[Serializable]
+public class Coord
+{
+    public float x;
+    public float z;
+    public float y;
 }
 
 [Serializable]
@@ -150,7 +159,7 @@ public class Season
 public class Metrics
 {
     public Duration duration;
-    public Elevation elevation;
+    //public Elevation elevation;
     public long length;
 }
 
@@ -209,27 +218,26 @@ public class Content
     public string type;
     public string id;
     public string title;
-    public Category category;
-    public Meta meta;
-    public Texts texts;
-    public double[] point;
-    public PrimaryRegion region;
-    public Region[] regions;
-    public Coordinate[] coordinates;
-    public CommunityInfo communityInfo; 
+    //public Category category;
+    //public Meta meta;
+    //public Texts texts;
+    //public Coord point;
+    //public PrimaryRegion region;
+    //public Region[] regions;
+    //public Coordinate[] coordinates;
+    //public CommunityInfo communityInfo; 
     public GeoJson geoJson;
-    public int[][] bbox;
-    public Poi[] pois;
-    public Literature[] literature;
-    public Season season;
+    //public Poi[] pois;
+    //public Literature[] literature;
+    //public Season season;
     public Metrics metrics;
     public RatingInfo ratingInfo;
-    public WayTypeInfo wayTypeInfo;
-    public string teaserText;
-    public bool isWinter;
-    public string openState;
-    public bool isClosedByClosure;
-    public bool isIgnoreClosedByClosure;
+    //public WayTypeInfo wayTypeInfo;
+    //public string teaserText;
+    //public bool isWinter;
+    //public string openState;
+    //public bool isClosedByClosure;
+    //public bool isIgnoreClosedByClosure;
 }
 
 [Serializable]

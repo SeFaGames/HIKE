@@ -43,7 +43,7 @@ public class TerrainManager : MonoBehaviour
         this.index = settings.GetTerrainIndex();
 
         float[,] completeHeightmap = ImportHeightmapFromDataFile(settings.dgmDataFile, this.index.heightmap.x, this.index.heightmap.z);
-        float terrainSize = ((settings.mapHeightmapResolution - 1) * this.index.gitterweite) * settings.mapScaleFactor;
+        float terrainSize = CalculateTerrainSize(settings.mapHeightmapResolution, this.index.gitterweite, settings.mapScaleFactor);
         Debug.Log(this.index.y.max);
         float terrainHeight = coordinateService.convertHeightETRSToUnity(this.index.y.max);// (this.index.y.diff * this.heightScaleFactor) / this.downscaleFactor;
 
@@ -227,12 +227,35 @@ public class TerrainManager : MonoBehaviour
         int segX = Mathf.FloorToInt(x / (((resolution - 1) * index.gitterweite) * settings.mapScaleFactor));
         int segZ = Mathf.FloorToInt(z / (((resolution - 1) * index.gitterweite) * settings.mapScaleFactor));
         String name = "harz_seg_" + segX + "_" + segZ;
+        Debug.Log(name);
+        Debug.Log($"x={x}, z={z}");
         Terrain terrain = this.GetComponentsInChildren<Terrain>().ToList().Find(elem => elem.name == name);
 
         if(terrain == null) return 0;
 
-        float height = terrain.SampleHeight(new Vector3(x, 0, z));
+        float height = terrain.SampleHeight(new Vector3(x, 0.0f, z));
+        Debug.Log(height);
         return height;
+    }
+
+    private float CalculateTerrainSize(int heightmapResolution, int gitterweite, float mapScaleFactor)
+    {
+        return ((heightmapResolution - 1) * gitterweite) * mapScaleFactor;
+    }
+
+    public Vector3 GetTerrainTotalWorldSize()
+    {
+        HikeSettings settings = HikeSettings.GetOrCreateSettings();
+        TerrainIndex index = settings.GetTerrainIndex();
+        CoordinateService coordinateService = CoordinateService.GetInstance();
+
+        float terrainSize = CalculateTerrainSize(settings.mapHeightmapResolution, index.gitterweite, settings.mapScaleFactor);
+        float terrainHeight = coordinateService.convertHeightETRSToUnity(index.y.max);
+
+        float numX = CalcSegmentsNeededForLength(index.x.diff, index.gitterweite, settings.mapHeightmapResolution);
+        float numZ = CalcSegmentsNeededForLength(index.z.diff, index.gitterweite, settings.mapHeightmapResolution);
+
+        return new Vector3(numX * terrainSize, 1 ,numZ * terrainSize);
     }
 
     /// <summary>

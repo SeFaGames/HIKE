@@ -51,7 +51,7 @@ public class WandernadelManager : MonoBehaviour
             stempelstelle.SetActive(true);
 
             Vector3 coordinates = coordinateService.convertETRSToUnity(new Vector3(data.x, data.y, data.z));
-            float height = terrainManager.calculateHeightAt(Mathf.RoundToInt(coordinates.x), Mathf.RoundToInt(coordinates.z), settings.mapHeightmapResolution, index);
+            float height = terrainManager.calculateHeightAt(coordinates.x, coordinates.z, settings.mapHeightmapResolution, index);
             coordinates.y = height;
 
             if(height <= 0)
