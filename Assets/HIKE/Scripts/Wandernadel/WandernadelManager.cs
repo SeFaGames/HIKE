@@ -2,27 +2,46 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class WandernadelManager : MonoBehaviour
 {
-    public TextAsset stampDataFile;
-    public GameObject stampPrefab;
     public TerrainManager terrainManager;
-    public float scaleFactor = 1.0f;
 
     [InspectorButton("Regenerate")]
     public bool regenerate;
 
+    [InspectorButton("Clear")]
+    public bool clear;
+
+    public bool regenerateOnGameStart = false;
+
     private Transform[] wandernadeln;
+
+    void Start()
+    {
+        if(regenerateOnGameStart)   
+            Regenerate();
+    }
 
     public void Regenerate()
     {
-        RemoveOldObjects();
+        Clear();
+
+        CoordinateService coordinateService = CoordinateService.GetInstance();
+        HikeSettings settings = HikeSettings.GetOrCreateSettings();
+        TerrainIndex index = settings.GetTerrainIndex();
+
+        float scaleFactor = settings.stampScaleFactor;
+        float mapScaleFactor = settings.mapScaleFactor;
+        TextAsset stampDataFile = settings.stampDataFile;
+        GameObject stampPrefab = settings.stampPrefab;
+
 
         StampData[] stempelstellen = JsonUtility.FromJson<StampDataArray>(stampDataFile.text).stempelstellen;
         wandernadeln = new Transform[stempelstellen.Length];
 
-        TerrainIndex index = terrainManager.Index;
+        //TerrainIndex index = terrainManager.Index;
 
         for (int i = 0; i < stempelstellen.Length; i++)
         {
@@ -30,13 +49,16 @@ public class WandernadelManager : MonoBehaviour
             var stempelstelle = Instantiate(stampPrefab, this.transform);
             stempelstelle.name = i + " - " + data.name;
             stempelstelle.SetActive(true);
-            float xPos = (data.x - index.x.min) / terrainManager.downscaleFactor;
-            float yPos = ((data.y - index.y.min) * terrainManager.heightScaleFactor) / terrainManager.downscaleFactor;
-            float zPos = (data.z - index.z.min) / terrainManager.downscaleFactor;
 
-            stempelstelle.transform.position = new Vector3(xPos, yPos, zPos);
+            Vector3 coordinates = coordinateService.convertETRSToUnity(new Vector3(data.x, data.y, data.z));
+            float height = terrainManager.calculateHeightAt(coordinates.x, coordinates.z, settings.mapHeightmapResolution, index);
+            coordinates.y = height;
 
-            stempelstelle.transform.localScale = stempelstelle.transform.localScale * scaleFactor;
+            if(height <= 0)
+                stempelstelle.SetActive(false);
+
+            stempelstelle.transform.localPosition = coordinates;
+            stempelstelle.transform.localScale = (stempelstelle.transform.localScale * scaleFactor) * mapScaleFactor;
 
             //Apply a random rotation around y axis
             Quaternion randomRotationRaw = Random.rotation;
@@ -46,7 +68,7 @@ public class WandernadelManager : MonoBehaviour
         }
     }
 
-    private void RemoveOldObjects()
+    private void Clear()
     {
         for (int i = this.transform.childCount - 1; i >= 0; i--)
         {

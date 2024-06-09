@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79aa7363217fc194b85906bbc7d5cf90, type: 3}
+  m_Name: HikeSettings
+  m_EditorClassIdentifier: 
+  dgmIndexFile: {fileID: 4900000, guid: 1850ebf8db721af4992236826e97f1c8, type: 3}
+  dgmDataFile: {fileID: 4900000, guid: d5aabb3e88e6a904cbd4b5311f621a42, type: 3}
+  mapScaleFactor: 0.000033
+  mapHeightScaleFactor: 2.5
+  mapHeightmapResolution: 513
+  dopMaterialPath: Textures/Terrain/Materials
+  stampScaleFactor: 6.5
+  stampDataFile: {fileID: 4900000, guid: 930e2f3e80d19114e8a6bb1a53d22505, type: 3}
+  stampPrefab: {fileID: 919132149155446097, guid: 5cad80a4c4f30114ebb632bd389ae3cb,
+    type: 3}
+  routesAssetPath: Assets/HIKE/Data/Wanderrouten
+  routesSplineRadius: 0.0015
+  routesSplineSidesMultiplier: 1
+  routesDifficultyMaterialPath: Textures/Wanderroute
