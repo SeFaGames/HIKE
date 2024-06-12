@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HikeSettings
   m_EditorClassIdentifier: 
   dgmIndexFile: {fileID: 4900000, guid: 1850ebf8db721af4992236826e97f1c8, type: 3}
-  dgmDataFile: {fileID: 4900000, guid: d5aabb3e88e6a904cbd4b5311f621a42, type: 3}
+  dgmDataFile: {fileID: 4900000, guid: 96aece5a36c743e4fa8d76303eaf98c9, type: 3}
   mapScaleFactor: 0.000033
   mapHeightScaleFactor: 2.5
   mapHeightmapResolution: 513
