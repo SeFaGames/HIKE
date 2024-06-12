@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Splines;
+using UnityEngine.UI;
 
 public class WanderroutenManager : MonoBehaviour
 {
@@ -20,7 +22,11 @@ public class WanderroutenManager : MonoBehaviour
     public bool clear;
 
     public bool regenerateOnGameStart = false;
-
+    
+    public String textDisplayed = "Guten Tag.";             //Kenngrößen für Testtext
+    public Vector3 textPosition = new Vector3(2, 2, 2);
+    public float textSize = 20.0f;
+    
     public void Regenerate()
     {
         Debug.Log("Regenerating Routes");
@@ -32,6 +38,8 @@ public class WanderroutenManager : MonoBehaviour
         Route[] routes = GetRoutes(settings.routesAssetPath);
         foreach (Route route in routes)
         {
+            DrawText();
+
             foreach (Content content in route.contents)
             {
                 GameObject routeObj = new GameObject(content.id + ": " + content.title);
@@ -117,6 +125,32 @@ public class WanderroutenManager : MonoBehaviour
         if (regenerateOnGameStart)
             Regenerate();
     }
+
+
+    private void DrawText()   //TODO Canvas für Darstellung der Informationen der jeweiligen Wanderroute
+    {
+        // Erstellen eines neuen GameObjects
+        GameObject textObject = new GameObject("TextField");
+
+        // Füge eine TextMeshPro-Komponente hinzu
+        TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
+
+        // Text einstellen
+        textMeshPro.text = textDisplayed;
+
+        // Textgröße einstellen
+        textMeshPro.fontSize = textSize;
+
+        // Textausrichtung (optional)
+        textMeshPro.alignment = TextAlignmentOptions.Center;
+
+        // Position des Textes setzen
+        textObject.transform.position = textPosition;
+
+        // Optional: Textfeld als Kindobjekt des aktuellen Objekts setzen
+        //textObject.transform.SetParent(this.transform);
+    }
+    
 
     private void Clear()
     {
