@@ -23,9 +23,10 @@ public class WanderroutenManager : MonoBehaviour
 
     public bool regenerateOnGameStart = false;
     
-    public String textDisplayed = "Guten Tag.";             //Kenngrößen für Testtext
-    public Vector3 textPosition = new Vector3(2, 2, 2);
-    public float textSize = 20.0f;
+    private Vector3 textPosition = new Vector3(2, 2, 2);
+    private float textSize = 0.5f;
+    private static int counterRoutes = 0;
+    
     
     public void Regenerate()
     {
@@ -38,7 +39,6 @@ public class WanderroutenManager : MonoBehaviour
         Route[] routes = GetRoutes(settings.routesAssetPath);
         foreach (Route route in routes)
         {
-            DrawText();
 
             foreach (Content content in route.contents)
             {
@@ -92,7 +92,33 @@ public class WanderroutenManager : MonoBehaviour
                 MeshRenderer renderer = routeObj.GetComponent<MeshRenderer>();
                 renderer.material = material;
             }
+
+            
+            
+            DrawText(counterRoutes, route.contents[0].title, route.contents[0].id, route.contents[0].ratingInfo.difficulty);
+            textPosition.y++;
+            counterRoutes++;
         }
+    }
+
+    private void DrawText(int counter, string title, string idRoute, int rating)         //TODO Canvas für Darstellung der Informationen der jeweiligen Wanderroute
+    {
+        GameObject textObject = new GameObject("TextField" + counter);
+
+        TextMeshPro textDisplayed = textObject.AddComponent<TextMeshPro>();
+
+        textDisplayed.text = title + "\n" + idRoute + "\n" + rating;
+
+
+        textDisplayed.fontSize = textSize;
+
+        textDisplayed.alignment = TextAlignmentOptions.Center;
+
+        // Position des Textes setzen
+        textObject.transform.position = textPosition;
+
+        // Optional: Textfeld als Kindobjekt des aktuellen Objekts setzen
+        //textObject.transform.SetParent(this.transform);
     }
 
     private Route[] GetRoutes(string routesAssetPath)
@@ -124,31 +150,6 @@ public class WanderroutenManager : MonoBehaviour
     {
         if (regenerateOnGameStart)
             Regenerate();
-    }
-
-
-    private void DrawText()   //TODO Canvas für Darstellung der Informationen der jeweiligen Wanderroute
-    {
-        // Erstellen eines neuen GameObjects
-        GameObject textObject = new GameObject("TextField");
-
-        // Füge eine TextMeshPro-Komponente hinzu
-        TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
-
-        // Text einstellen
-        textMeshPro.text = textDisplayed;
-
-        // Textgröße einstellen
-        textMeshPro.fontSize = textSize;
-
-        // Textausrichtung (optional)
-        textMeshPro.alignment = TextAlignmentOptions.Center;
-
-        // Position des Textes setzen
-        textObject.transform.position = textPosition;
-
-        // Optional: Textfeld als Kindobjekt des aktuellen Objekts setzen
-        //textObject.transform.SetParent(this.transform);
     }
     
 
