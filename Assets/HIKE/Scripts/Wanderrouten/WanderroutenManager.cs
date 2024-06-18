@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Splines;
+using UnityEngine.UI;
 
 public class WanderroutenManager : MonoBehaviour
 {
@@ -22,6 +24,12 @@ public class WanderroutenManager : MonoBehaviour
 
     public bool regenerateOnGameStart = false;
 
+    public Transform ParentTextfields;
+    private Vector3 textPosition = new Vector3(1, 1, 1);
+    private float textSize = 0.25f;
+    private static int counterRoutes = 0;
+    
+    
     public long[] filter;
 
     public bool filterWhitelist = true;
@@ -51,6 +59,7 @@ public class WanderroutenManager : MonoBehaviour
         Route[] routes = GetRoutes(settings.routesAssetPath);
         foreach (Route route in routes)
         {
+
             foreach (Content content in route.contents)
             {
                 GameObject routeObj = new GameObject(content.id + ": " + content.title);
@@ -104,7 +113,38 @@ public class WanderroutenManager : MonoBehaviour
                 MeshRenderer renderer = routeObj.GetComponent<MeshRenderer>();
                 renderer.material = material;
             }
+
+            
+            
+            DrawText(counterRoutes, route.contents[0].title, route.contents[0].id, route.contents[0].ratingInfo.difficulty);
+            counterRoutes++;
         }
+    }
+    
+    private void DrawText(int counter, string title, string idRoute, int rating)         //Canvas für Darstellung der Informationen der jeweiligen Wanderroute
+    {
+        GameObject textObject = new GameObject("TextField" + counter);
+
+        textObject.transform.parent = ParentTextfields;
+
+        ParentTextfields.transform.position = textPosition;
+        
+        textObject.SetActive(false);
+
+        TextMeshPro textDisplayed = textObject.AddComponent<TextMeshPro>();
+
+        textDisplayed.text = title + "\n" + idRoute + "\n" + rating;
+
+        textDisplayed.rectTransform.transform.position = textPosition;
+
+        textDisplayed.fontSize = textSize;
+
+        textDisplayed.alignment = TextAlignmentOptions.Center;
+
+        // Position des Textes setzen
+
+        // Optional: Textfeld als Kindobjekt des aktuellen Objekts setzen
+        //textObject.transform.SetParent(this.transform);
     }
 
     private long[] ReadFilterFile()
@@ -171,6 +211,7 @@ public class WanderroutenManager : MonoBehaviour
         if (regenerateOnGameStart)
             Regenerate();
     }
+    
 
     private void Clear()
     {
