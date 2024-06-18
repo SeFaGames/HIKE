@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Splines;
 using UnityEngine.UI;
@@ -29,6 +30,24 @@ public class WanderroutenManager : MonoBehaviour
     private static int counterRoutes = 0;
     
     
+    public long[] filter;
+
+    public bool filterWhitelist = true;
+
+    public TextAsset alternativeFilterFile;
+
+    public void DeactivateAllBut(GameObject selectedStamp)
+    {
+        GameObject[] stamps = this.GetComponentsInChildren<GameObject>();
+        foreach (GameObject stamp in stamps)
+        {
+            if (stamp.name.Equals(selectedStamp.name))
+                continue;
+           
+            stamp.SetActive(false);
+        }
+    }
+
     public void Regenerate()
     {
         Debug.Log("Regenerating Routes");
@@ -44,6 +63,7 @@ public class WanderroutenManager : MonoBehaviour
             foreach (Content content in route.contents)
             {
                 GameObject routeObj = new GameObject(content.id + ": " + content.title);
+
                 SplineContainer splineContainer = routeObj.AddComponent<SplineContainer>();
                 routeObj.transform.parent = this.transform;
                 routeObj.transform.localPosition = Vector3.zero;
@@ -127,25 +147,59 @@ public class WanderroutenManager : MonoBehaviour
         //textObject.transform.SetParent(this.transform);
     }
 
+    private long[] ReadFilterFile()
+    {
+        if (alternativeFilterFile == null)
+            return this.filter;
+
+        string[] lines = alternativeFilterFile.text.Split("\n");
+        long[] filter = new long[lines.Length];
+        for (int i = 0; i < lines.Length; i++)
+        {
+            try
+            {
+                filter[i] = long.Parse(lines[i]);
+            }
+            catch
+            { 
+                continue;
+            }
+        }
+        return filter;
+    }
+
     private Route[] GetRoutes(string routesAssetPath)
     {
         DirectoryInfo info = new DirectoryInfo(routesAssetPath);
         //Debug.Log(routesAssetPath);
         //DEBUG Filter nur nach Goetheweg (Torfhaus - Brocken)
         FileInfo[] fileInfo = info.GetFiles("*.json");   //Sonst *.json nutzen
-        Route[] routes = new Route[fileInfo.Length];
+        List<FileInfo> filteredInfo = new List<FileInfo>();
+        long[] filter = ReadFilterFile();
+
+        foreach (FileInfo fi in fileInfo)
+        {
+            String idRaw = fi.Name.Substring(0, fi.Name.Length -5);
+            Debug.Log(idRaw);
+            long id = long.Parse(idRaw);
+
+            if (filter.Length > 0)
+            {
+                if (FilterContains(filter, id) == filterWhitelist)
+                    filteredInfo.Add(fi);
+            }
+        }
+
+        Route[] routes = new Route[filteredInfo.Count];
         //Debug.Log($"File Count:{routes.Length}");
         
-        for (int i = 0; i < fileInfo.Length; i++)
+        for (int i = 0; i < filteredInfo.Count; i++)
         {
-            FileInfo file = fileInfo[i];
+            FileInfo file = filteredInfo[i];
 
             String content = File.ReadAllText(file.FullName);
             Route route = WanderroutenReader.ReadRoute(content);
-            //Debug.Log(route.contents);
-            //Debug.Log(route.contents.Length);
-            //Debug.Log(route.contents[0].geoJson);
-            //Debug.Log(route.contents[0].geoJson.coordinates);
+
             routes[i] = route;
             
         }
@@ -165,5 +219,14 @@ public class WanderroutenManager : MonoBehaviour
         {
             DestroyImmediate(this.transform.GetChild(i).gameObject);
         }
+    }
+
+    private bool FilterContains(long[] filter, long id)
+    {
+        foreach (long i in filter)
+        {
+            if (i == id) return true;
+        }
+        return false;
     }
 }
