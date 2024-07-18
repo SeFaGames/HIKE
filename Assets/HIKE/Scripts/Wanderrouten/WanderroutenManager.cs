@@ -9,11 +9,12 @@ using UnityEngine;
 using UnityEngine.Splines;
 using UnityEngine.UI;
 
+/// <summary>
+/// This class manages hiking trails (wanderrouten)
+/// It creates the splines, assigns a material for each difficulty, 
+/// </summary>
 public class WanderroutenManager : MonoBehaviour
 {
-
-    //public String routesAssetPath = "Data/Wanderrouten";
-    //public GameObject routeNodePrefab;
     public TerrainManager terrainManager;
 
     [InspectorButton("Regenerate")]
@@ -28,7 +29,7 @@ public class WanderroutenManager : MonoBehaviour
     private Vector3 textPosition = new Vector3(1, 1, 1);
     private float textSize = 0.25f;
     private static int counterRoutes = 0;
-    
+    private bool visibility = true;
     
     public long[] filter;
 
@@ -36,6 +37,10 @@ public class WanderroutenManager : MonoBehaviour
 
     public TextAsset alternativeFilterFile;
 
+    /// <summary>
+    /// Deactivates all Routes except the provided one
+    /// </summary>
+    /// <param name="selectedStamp"></param>
     public void DeactivateAllBut(GameObject selectedStamp)
     {
         GameObject[] stamps = this.GetComponentsInChildren<GameObject>();
@@ -48,6 +53,20 @@ public class WanderroutenManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Toggles the visibility of the wanderoutenManager and therefore all its childs
+    /// </summary>
+    public void ToggleVisibilty()
+    {
+        visibility = !visibility;
+        gameObject.SetActive(visibility);
+    }
+
+    /// <summary>
+    /// Removes all existing routes and regenerates them.
+    /// This method iterates over the list of all saved routes, creates splines and populates the splines with the routes waypoints.
+    /// It assigns a material which depends on the difficulty of the route and activates / deactivates the route depending on if the route extends beyond the boundries of the map
+    /// </summary>
     public void Regenerate()
     {
         Debug.Log("Regenerating Routes");
@@ -121,6 +140,13 @@ public class WanderroutenManager : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Creates a new Canvas to display route information
+    /// </summary>
+    /// <param name="counter"></param>
+    /// <param name="title"></param>
+    /// <param name="idRoute"></param>
+    /// <param name="rating"></param>
     private void DrawText(int counter, string title, string idRoute, int rating)         //Canvas für Darstellung der Informationen der jeweiligen Wanderroute
     {
         GameObject textObject = new GameObject("TextField" + counter);
@@ -147,6 +173,10 @@ public class WanderroutenManager : MonoBehaviour
         //textObject.transform.SetParent(this.transform);
     }
 
+    /// <summary>
+    /// Reads the contents of the filter file
+    /// </summary>
+    /// <returns>array of route ids - the filter</returns>
     private long[] ReadFilterFile()
     {
         if (alternativeFilterFile == null)
@@ -168,6 +198,11 @@ public class WanderroutenManager : MonoBehaviour
         return filter;
     }
 
+    /// <summary>
+    /// Returns a Array containing all routes (filtered) which are stored in the provided asset path
+    /// </summary>
+    /// <param name="routesAssetPath"></param>
+    /// <returns></returns>
     private Route[] GetRoutes(string routesAssetPath)
     {
         DirectoryInfo info = new DirectoryInfo(routesAssetPath);
@@ -206,13 +241,18 @@ public class WanderroutenManager : MonoBehaviour
         return routes;
     }
 
+    /// <summary>
+    /// Executed on startup
+    /// </summary>
     void Start()
     {
         if (regenerateOnGameStart)
             Regenerate();
     }
     
-
+    /// <summary>
+    /// Destroys all children / routes
+    /// </summary>
     private void Clear()
     {
         for (int i = this.transform.childCount - 1; i >= 0; i--)
@@ -221,6 +261,12 @@ public class WanderroutenManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Checks whether or not the filter contains a route id 
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <param name="id"></param>
+    /// <returns>true, if the filter contains this id, else false</returns>
     private bool FilterContains(long[] filter, long id)
     {
         foreach (long i in filter)

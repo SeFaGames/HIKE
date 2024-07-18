@@ -5,6 +5,9 @@ using UnityEditor;
 using System.Reflection;
 
 /// <summary>
+/// This Class is used for editor buttons.
+/// It is copied from a online tutorial.
+/// 
 /// This attribute can only be applied to fields because its
 /// associated PropertyDrawer only operates on fields (either
 /// public or tagged with the [SerializeField] attribute) in

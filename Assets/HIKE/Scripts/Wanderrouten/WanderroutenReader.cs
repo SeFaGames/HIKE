@@ -254,6 +254,10 @@ public class Root
     public Route answer;
 }
 
+
+/// <summary>
+/// This whole construct of classes is used to convert the hiking routes json file to a useable c# object
+/// </summary>
 public class WanderroutenReader
 {
     public static Route ReadRoute(String content)

@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Provides some useful methods for converting json files
+/// </summary>
 public static class JsonHelper
 {
     public static T[] FromJson<T>(string json)

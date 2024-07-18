@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class is used to store meta-information abount the digital terrain modell
+/// </summary>
 [Serializable]
 public class TerrainIndex
 {
@@ -14,6 +17,9 @@ public class TerrainIndex
     public int dgm_sample_size;
 }
 
+/// <summary>
+/// Contains the minimum, maximum value of a coordinate in the dgm and provides their diffrence
+/// </summary>
 [Serializable]
 public class CoordinateBound
 {
@@ -22,6 +28,9 @@ public class CoordinateBound
     public float diff;
 }
 
+/// <summary>
+/// Contains the x and z bounds of the heightmap
+/// </summary>
 [Serializable]
 public class HeightmapBounds
 {

@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// Deprecated
+/// </summary>
 public class HikeLoader : MonoBehaviour
 {
     public GameObject loadingScreen;

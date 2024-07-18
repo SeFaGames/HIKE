@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class manages the table on which the model is positioned. It automatically adjusts the size to the size of the model.
+/// </summary>
 public class SizeScript : MonoBehaviour
 {
     public TerrainManager terrainManager;
@@ -13,6 +16,9 @@ public class SizeScript : MonoBehaviour
     public float edgeMargin = 0.2f;
     public float heightOffset = 0.0015f;
 
+    /// <summary>
+    /// Adjusts the tables size
+    /// </summary>
     public void Regenerate()
     {
         Vector3 terrainSize = terrainManager.GetTerrainTotalWorldSize();

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+/// <summary>
+/// Small Editor Script to create Materials from a List of Textures (used to create materials for the dops)
+/// </summary>
 public class MaterialGenerator
 {
     [MenuItem("Assets/Create Materials")]

@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Deprecated
+/// </summary>
 public class LoadingWheel : MonoBehaviour
 {
     public float rotateSpeed = 100f;

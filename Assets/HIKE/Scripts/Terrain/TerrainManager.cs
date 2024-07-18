@@ -8,14 +8,12 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Animations;
 
+/// <summary>
+/// This Class manages the terrain segments:
+/// Generates them, calculates the size, populates the heightmap and provides a method to retrieve the height of the terrain at a certain coordinate
+/// </summary>
 public class TerrainManager : MonoBehaviour
 {
-    /* DEFINITIONS:
-     * 
-     * 2D Array mapped onto terrain => array[z][x] <<-- first index is z coordinate, second index is x coordinate!
-     * von Data auf Terrain x und z tauschen!
-     */
-
     private TerrainIndex index;
 
     [InspectorButton("Regenerate")]
@@ -26,6 +24,9 @@ public class TerrainManager : MonoBehaviour
 
     public bool regenerateOnGameStart = false;
 
+    /// <summary>
+    /// This will be executed on game start
+    /// </summary>
     void Start()
     {
         if(regenerateOnGameStart)
@@ -220,6 +221,14 @@ public class TerrainManager : MonoBehaviour
         return tileHeightmap;
     }
 
+    /// <summary>
+    /// Retrieve the height of the terrain at a given coordinate
+    /// </summary>
+    /// <param name="x">X Coordinate</param>
+    /// <param name="z">Z Coordinate</param>
+    /// <param name="resolution">Terrain Resolution</param>
+    /// <param name="index">TerrainIndex</param>
+    /// <returns>terrain height at the given coordinates</returns>
     public float calculateHeightAt(float x, float z, int resolution, TerrainIndex index)
     {
         HikeSettings settings = HikeSettings.GetOrCreateSettings();
@@ -238,11 +247,22 @@ public class TerrainManager : MonoBehaviour
         return height;
     }
 
+    /// <summary>
+    /// Calculates the Size of the Terrain
+    /// </summary>
+    /// <param name="heightmapResolution"></param>
+    /// <param name="gitterweite">dgm gitterweite</param>
+    /// <param name="mapScaleFactor"></param>
+    /// <returns>Size of the terrain segment</returns>
     private float CalculateTerrainSize(int heightmapResolution, int gitterweite, float mapScaleFactor)
     {
         return ((heightmapResolution - 1) * gitterweite) * mapScaleFactor;
     }
 
+    /// <summary>
+    /// Returns the size for all 3 axis
+    /// </summary>
+    /// <returns>Vector3 containing the sizes of the terrain object</returns>
     public Vector3 GetTerrainTotalWorldSize()
     {
         HikeSettings settings = HikeSettings.GetOrCreateSettings();

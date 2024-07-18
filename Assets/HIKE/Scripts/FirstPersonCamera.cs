@@ -4,6 +4,9 @@ using Unity.VisualScripting;
 using UnityEditor.Rendering;
 using UnityEngine;
 
+/// <summary>
+/// Deprecated
+/// </summary>
 public class FirstPersonCamera : MonoBehaviour
 {
     public float mouseSensitiviy = 2;

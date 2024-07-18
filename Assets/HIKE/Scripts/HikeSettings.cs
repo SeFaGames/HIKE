@@ -6,6 +6,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// Hike Settings
+/// </summary>
 public class HikeSettings : ScriptableObject
 {
     public const string settingsPath = "Assets/Settings/HikeSettings.asset";
@@ -49,6 +52,10 @@ public class HikeSettings : ScriptableObject
     [SerializeField]
     public string routesDifficultyMaterialPath; 
 
+    /// <summary>
+    /// Creates settings and assigns default values to the settings
+    /// </summary>
+    /// <returns></returns>
     internal static HikeSettings GetOrCreateSettings()
     {
         Debug.Log("Retrieving Settings");
@@ -84,39 +91,54 @@ public class HikeSettings : ScriptableObject
         return settings;
     }
 
+    /// <summary>
+    /// Serializes the settings
+    /// </summary>
+    /// <returns>Serialized Settings</returns>
     internal static SerializedObject GetSerializedSettings()
     {
         return new SerializedObject(GetOrCreateSettings());
     }
 
+    /// <summary>
+    /// Returns a freshly read TerrainIndex Object
+    /// </summary>
+    /// <returns>terrain index</returns>
     internal TerrainIndex GetTerrainIndex()
     {
         return JsonUtility.FromJson<TerrainIndex>(this.dgmIndexFile.text); 
     }
 }
 
+/// <summary>
+/// Creates GUIContent Objects for each Setting
+/// </summary>
 //ADD NEW PROPERTIES HERE
 class Styles
 {
-    public static GUIContent dgm_indexFile = new GUIContent("Geländemodell - Index-Datei");
-    public static GUIContent dgm_dataFile = new GUIContent("Geländemodell - Höhendaten-Datei");
+    public static GUIContent dgm_indexFile = new GUIContent("Index-Datei", "Eine .json Index Datei mit Meta-Informationen über die Höhendaten-Datei");
+    public static GUIContent dgm_dataFile = new GUIContent("Höhendaten-Datei", "Eine .bytes Datei mit Höhendaten (zwischen 0 und 1)");
 
-    public static GUIContent map_scaleFactor = new GUIContent("Skalierungsfaktor");
-    public static GUIContent map_heightScaleFactor = new GUIContent("Überhöhungsfaktor");
-    public static GUIContent map_heightmapResolution = new GUIContent("Auflösung der Heightmap");
+    public static GUIContent map_scaleFactor = new GUIContent("Skalierungsfaktor", "Bestimmt in welchem Größenverhältnis die Miniatur des Harzes zu den realen Dimensionen steht");
+    public static GUIContent map_heightScaleFactor = new GUIContent("Überhöhungsfaktor", "Bestimmt einen Multiplikator mit welchem die Höhe des Terrains skaliert");
+    public static GUIContent map_heightmapResolution = new GUIContent("Auflösung der Heightmap", "Bestimmt die Anzahl an Samplepunkten pro Seite pro Terrain. Dies beeinflusst die Anzahl an Terainsegmenten die zur Darstellung des gesamten Modells genutzt werden sollen");
 
-    public static GUIContent dop_MaterialPath = new GUIContent("Orthofoto-Texturen - Pfad zum Materialordner");
+    public static GUIContent dop_MaterialPath = new GUIContent("Pfad zum Materialordner", "Lokaler Pfad unter Assets zum Ordner mit den DOP-Materialien");
 
-    public static GUIContent stamp_scaleFactor = new GUIContent("Stempelstelle - Skalierungsfaktor");
-    public static GUIContent stamp_dataFile = new GUIContent("Stempelstelle - Quelldatei");
-    public static GUIContent stamp_prefab = new GUIContent("Stempelstelle - Prefab");
+    public static GUIContent stamp_scaleFactor = new GUIContent("Skalierungsfaktor", "Bestimmt um welchen Faktor die Miniatur der Stempelstelle skaliert wird");
+    public static GUIContent stamp_dataFile = new GUIContent("Quelldatei", "Eine .json Datei mit Stempelstelleninformationen");
+    public static GUIContent stamp_prefab = new GUIContent("Prefab", "Das Stempelstellen Prefab (GameObject)");
 
-    public static GUIContent routes_assetPath = new GUIContent("Wanderrouten - Pfad zu den Quelldateien");
-    public static GUIContent routes_difficultyMaterialPath = new GUIContent("Wanderrouten - Materialpfad");
-    public static GUIContent routes_splineRadius = new GUIContent("Wanderrouten - Basis-Radius der Splines");
-    public static GUIContent routes_splineSidesMultiplier = new GUIContent("Wanderrouten - Kantenmultiplikator der Splines");
+    public static GUIContent routes_assetPath = new GUIContent("Pfad zu den Quelldateien", "Lokaler Pfad unter Assets zum Ordner mit den Wanderrouten");
+    public static GUIContent routes_difficultyMaterialPath = new GUIContent("Materialpfad", "Lokaler Pfad unter Assets zum Ordner mit den Schwierigkeitsgrad-Materialien");
+    public static GUIContent routes_splineRadius = new GUIContent("Basis-Radius der Splines", "Bestimmt die Dicke der Splines");
+    public static GUIContent routes_splineSidesMultiplier = new GUIContent("Kantenmultiplikator der Splines", "Bestimmt den Detaillgrad der Splines, 1 entspricht 1 Knoten pro Samplepunkt, alles > 1 führt zu Interpolation, alles < 1 sorgt für Detaillverlust");
 }
 
+/// <summary>
+/// Unity Settings Provider.
+/// Adds Settings to Project Settigns
+/// </summary>
 class HikeSettingsProvider : SettingsProvider
 {
     private SerializedObject settings;
@@ -160,6 +182,8 @@ class HikeSettingsProvider : SettingsProvider
         EditorGUILayout.PropertyField(settings.FindProperty("stampDataFile"), Styles.stamp_dataFile);
         EditorGUILayout.PropertyField(settings.FindProperty("stampPrefab"), Styles.stamp_prefab);
 
+        //Stempelstellen
+        EditorGUILayout.LabelField("Wanderrouten:");
         EditorGUILayout.PropertyField(settings.FindProperty("routesAssetPath"), Styles.routes_assetPath);
         EditorGUILayout.PropertyField(settings.FindProperty("routesDifficultyMaterialPath"), Styles.routes_difficultyMaterialPath);
         EditorGUILayout.PropertyField(settings.FindProperty("routesSplineRadius"), Styles.routes_splineRadius);
