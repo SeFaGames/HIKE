@@ -1,0 +1,14 @@
+Das Unity-Projekt, sowie einige Python-Skripte, 
+auf welche in der Dokumentation verwiesen wird, 
+müssen wegen der Dateigröße separat heruntergeladen werden.
+
+Die ZIP ist unter folgendem Link zu finden:
+http://www.lbfs.eu/download/HIKE/HIKE_mit_Ressourcen_kompakt.zip
+Größe ca. 7,8 GB
+
+Alternativ kann der Code auch von Github heruntergeladen werden. 
+Enthält dann jedoch kein DGM und keine Texturen:
+https://github.com/SeFaGames/HIKE/tree/abgabe
+
+DGM, Texturen und Wanderrouten sind separat auch hier zu finden:
+http://www.lbfs.eu/download/HIKE
